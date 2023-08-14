@@ -60,7 +60,6 @@ install_version() {
 		chmod +x "$install_path/fasd"
 		mkdir -p "$install_path/../man/man1"
 		cp "$ASDF_DOWNLOAD_PATH"/fasd.1 "$install_path/../man/man1"
-		rm "$release_file"
 
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
