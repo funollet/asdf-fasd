@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for fasd.
 GH_REPO="https://github.com/clvv/fasd"
 TOOL_NAME="fasd"
 TOOL_TEST="fasd -h"
@@ -31,8 +30,6 @@ list_github_tags() {
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if fasd has other means of determining installable versions.
 	list_github_tags
 }
 
@@ -41,8 +38,7 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for fasd
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	url="$GH_REPO/archive/refs/tags/${version}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -57,11 +53,15 @@ install_version() {
 		fail "asdf-$TOOL_NAME supports release installs only"
 	fi
 
+	local release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$version.tar.gz"
 	(
 		mkdir -p "$install_path"
-		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+		cp "$ASDF_DOWNLOAD_PATH"/fasd "$install_path"
+		chmod +x "$install_path/fasd"
+		mkdir -p "$install_path/../man/man1"
+		cp "$ASDF_DOWNLOAD_PATH"/fasd.1 "$install_path/../man/man1"
+		rm "$release_file"
 
-		# TODO: Assert fasd executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
